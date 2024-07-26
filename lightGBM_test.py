@@ -43,7 +43,6 @@ model = lgb.train(params, train_data, num_boost_round=100, valid_sets=test_data)
 
 
 # target_pred = test_input으로 학습하여 예측한 값
-# y_pred = X_test로 학습하여 예측한 값
 # num_iteration = 트리의 반복 횟수 , model.best_iteration = 최적의 반복 횟수로 설정
 target_pred = model.predict(test_input, num_iteration=model.best_iteration)
 
