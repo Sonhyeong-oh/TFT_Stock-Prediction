@@ -67,6 +67,9 @@ testX, testY = np.array(testX), np.array(testY)
 # print(testX.shape, testY.shape)
 
 # R2 점수 함수
+# r2점수 = 예측된 값이 실제 값과 얼마나 잘 일치하는지 설명하는 지표, 1에 가까울 수록 좋은 모델
+# 1 - (sum(관측값 - 예측값)^2 / sum(관측값 - 타겟 데이터 평균값)^2)
+# 1 - (sum(test_target - target_pred)^2 / sum(test_target - np.mean(test_target))^2)
 def r2_metric(trainX, trainY):
     # 실제 값과 예측 값의 평균 계산
     res = tf.keras.backend.sum(tf.keras.backend.square(trainX - trainY))  # 잔차 제곱합
@@ -88,6 +91,8 @@ learning_rate = 0.01
 # 최적화 함수 설정
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 # 모델 컴파일(최적화 함수 : 아담, 손실함수 : mse, 측정값 = R제곱 점수)
+# mse = 평균 제곱 오차, 실제 값과 예측 값 사이의 차이를 제곱한 값의 평균
+# 값이 작을 수록 오차가 작음
 model.compile(optimizer=optimizer, loss='mse', metrics = [r2_metric])
 
 
