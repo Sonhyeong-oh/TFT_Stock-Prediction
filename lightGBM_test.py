@@ -9,7 +9,7 @@ import lightgbm as lgb
 data = pd.read_csv("C:/Users/daily/Desktop/train.csv")
 data1 = data.drop('Date', axis = 1)
 
-# 데이터 분할
+# 데이터 분할, 훈련데이터 9 : 테스트 데이터 1
 n_train = int(0.9*data1.shape[0])
 train = data1.iloc[:n_train]
 test = data1.iloc[n_train:]
