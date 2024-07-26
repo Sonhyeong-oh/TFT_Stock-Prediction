@@ -20,11 +20,11 @@ original_open = stock_data['Open'].values
 # print9type(dates.iloc[0]) = <class 'pandas._libs.tslibs.timestamps.Timestamp'>
 dates = pd.to_datetime(stock_data['Date'])
 
-# 훈련 데이터 추출 변수
+# 훈련 데이터 추출 변수 ('Date' 제외)
 cols = list(stock_data)[1:6]
 
 # new dataframe with only training data - 5 columns
-# 새로운 훈련 데이터셋  - 
+# 새로운 훈련 데이터셋
 stock_data = stock_data[cols].astype(float)
 
 # 데이터셋 표준화
@@ -32,7 +32,7 @@ scaler = StandardScaler()
 scaler = scaler.fit(stock_data)
 stock_data_scaled = scaler.transform(stock_data)
 
-# 훈련 데이터와 테스트 데이터 분리
+# 훈련 데이터와 테스트 데이터 분리 (9:1)
 # 시계열 분석이기 때문에 train_test_split 사용 X
 n_train = int(0.9*stock_data_scaled.shape[0])
 train_data_scaled = stock_data_scaled[0: n_train]
