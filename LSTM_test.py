@@ -17,7 +17,7 @@ original_open = stock_data['Open'].values
 
 # 날짜 데이터 문자열(type : str)을 datetime 객체(type: datetime64[ns])로 변환
 # print(type(stock_data['Date'].iloc[0])) = <class 'str'>
-# print9type(dates.iloc[0]) = <class 'pandas._libs.tslibs.timestamps.Timestamp'>
+# print(type(dates.iloc[0])) = <class 'pandas._libs.tslibs.timestamps.Timestamp'>
 dates = pd.to_datetime(stock_data['Date'])
 
 # 훈련 데이터 추출 변수 ('Date' 제외)
