@@ -18,6 +18,11 @@ train_target = train['Close']
 test_input = test.drop('Close', axis = 1)
 test_target = test['Close']
 
+# 시각화를 위한 날짜 데이터 처리
+date_info = pd.to_datetime(data['Date'])
+train_date = date_info.iloc[:n_train]
+test_date = date_info.iloc[n_train:]
+
 # 하이퍼 파라미터 설정
 params = {
     'max_depth' : -1, # 각 트리의 최대 깊이 설정
@@ -71,5 +76,26 @@ print(f'MSE: {mse}')
 from sklearn.metrics import r2_score
 r2 = r2_score(test_target, target_pred)
 print('R square score:',r2)
+
+
+# 데이터 시각화
+import matplotlib.pyplot as plt
+import matplotlib.dates as md
+
+# matplot 한글 출력 코드
+plt.rcParams['font.family'] ='Malgun Gothic'
+plt.rcParams['axes.unicode_minus'] =False
+
+plt.plot(test_date, test_target, color='blue', label='실제 종가')
+plt.plot(test_date, target_pred, color='red', linestyle='--', label='예측 종가')
+plt.xlabel('날짜')
+plt.ylabel('시가')
+plt.title('실제 vs 예측 종가 비교')
+plt.legend()
+
+# x축 월 단위 출력
+ax = plt.gca()
+ax.xaxis.set_major_locator(md.MonthLocator())
+plt.show()
 
 # 데이터 출처 : https://www.kaggle.com/competitions/netflix-stock-prediction/data?select=sample_submission.csv
