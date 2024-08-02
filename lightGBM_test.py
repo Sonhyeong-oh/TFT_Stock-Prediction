@@ -75,7 +75,7 @@ print(f'MSE: {mse}')
 # 1 - (sum(test_target - target_pred)^2 / sum(test_target - np.mean(test_target))^2)
 from sklearn.metrics import r2_score
 r2 = r2_score(test_target, target_pred)
-print('R square score:',r2)
+print('R squared score:',r2)
 
 
 # 데이터 시각화

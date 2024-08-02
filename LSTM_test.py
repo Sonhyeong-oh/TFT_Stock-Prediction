@@ -47,12 +47,14 @@ pred_days = 1  # 예측 일수
 seq_len = 14   # 시퀀스 길이 = 미래 예측을 위한 과거 일수
 input_dim = 5  # 입력 (열) 차원 = ['Open', 'High', 'Low', 'Close', 'Volume']
 
+# X = 학습 데이터 시퀀스 / Y = 예측할 실제 값
 trainX = []
 trainY = []
 testX = []
 testY = []
 
 for i in range(seq_len, n_train-pred_days +1):
+    # scaled 데이터 중 i-seq_len 행의 모든 데이터(= 모든 열)를 리스트에 추가
     trainX.append(train_data_scaled[i - seq_len:i, 0:train_data_scaled.shape[1]])
     trainY.append(train_data_scaled[i + pred_days - 1:i + pred_days, 0])
 
