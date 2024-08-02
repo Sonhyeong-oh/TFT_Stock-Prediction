@@ -5,6 +5,7 @@ from sklearn.metrics import mean_squared_error
 import lightgbm as lgb
 
 
+# 데이터 불러오기
 data = pd.read_csv("C:/Users/daily/Desktop/train.csv")
 data1 = data.drop('Date', axis = 1)
 
