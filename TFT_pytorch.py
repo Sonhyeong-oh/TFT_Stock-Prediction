@@ -33,7 +33,6 @@ from pytorch_forecasting.metrics import MAE, SMAPE, PoissonLoss, QuantileLoss
 from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
 
 
-
 # 데이터 생성
 data = pd.read_excel("C:/Users/daily/Desktop/combined_weekly.xlsx")
 data['Date'] = pd.to_datetime(data['Date'])
@@ -93,33 +92,6 @@ batch_size = 128
 train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=0)
 # 검증 데이터셋을 dataloader 형태로 변환
 val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=0)
-
-
-# 최적의 파라미터 산출
-# opt_hp = optimize_hyperparameters(
-#     train_dataloader,
-#     val_dataloader,
-#     model_path= 'optuna_test',
-#     n_trials= 1,
-#     max_epochs=10,
-#     gradient_clip_val_range=(0.01, 1.0),
-#     hidden_size_range=(8, 64),
-#     attention_head_size_range=(2,4),
-#     hidden_continuous_size_range=(8,64),
-#     learning_rate_range=(0.001, 0.1),
-#     dropout_range=(0.1, 0.3),
-#     trainer_kwargs=dict(limit_train_batches=30, log_every_n_steps = 15, accelerator = 'cpu'),
-#     reduce_on_plateau_patience= 4,
-#     use_learning_rate_finder= False,
-#     timeout=5400*4
-# )
-
-# opt_gcv = opt_hp.best_trial.params['gradient_clip_val']
-# opt_hs = opt_hp.best_trial.params['hidden_size']
-# opt_dpt = opt_hp.best_trial.params['dropout']
-# opt_hcs = opt_hp.best_trial.params['hidden_continuous_size']
-# opt_ahs = opt_hp.best_trial.params['attention_head_size']
-# opt_lr = opt_hp.best_trial.params['learning_rate']
 
 
 # 모델이 예측을 수행할 때, 이전 시간 단계의 마지막 값으로 다음 값을 예측하고, 이를 통해 계산된 MAE를 평가
@@ -182,21 +154,15 @@ res = Tuner(trainer).lr_find(
     min_lr=1e-6, # 탐색할 최소 학습률
 )
 
-# # 학습률 출력
-# print(f"suggested learning rate: {res.suggestion()}")
-# fig = res.plot(show=True, suggest=True)
-# # fig = plt.figure()
-# plt.show()
-
-# _tkinter.TclError: can't invoke "wm" command: application has been destroyed 에러 방지를 위해 그래프 저장 후 출력
-# https://github.com/matplotlib/matplotlib/issues/10287/
-# fig.savefig("test.png")
-# plt.show()
-
+# 학습률 출력
+print(f"suggested learning rate: {res.suggestion()}")
+fig = res.plot(show=True, suggest=True)
+# fig = plt.figure()
+plt.show()
+res_lr = res.suggestion()
 
 import tensorflow as tf
 import tensorboard as tb
-# tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
 
 # 학습 과정 중 검증 손실(val_loss)를 모니터링, 성능 개선 안 되었을 시 학습 중지
 # min_delta = 개선된 것으로 간주할 최소 손실 변화
@@ -224,7 +190,7 @@ trainer = pl.Trainer(
 
 tft = TemporalFusionTransformer.from_dataset(
     training,
-    learning_rate=0.03,
+    learning_rate=res_lr,
     hidden_size=16,
     attention_head_size=2,
     dropout=0.1,
