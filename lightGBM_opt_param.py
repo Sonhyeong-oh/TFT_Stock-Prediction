@@ -1,0 +1,153 @@
+# lightGBM을 이용한 종가 예측
+
+from bayes_opt import BayesianOptimization
+from sklearn.metrics import roc_auc_score
+import pandas as pd
+from sklearn.metrics import mean_squared_error
+import lightgbm as lgb
+from sklearn.metrics import roc_auc_score
+import optuna
+import numpy as np
+
+
+# 데이터 불러오기
+data = pd.read_excel("C:/Users/daily/Desktop/combined_weekly.xlsx")
+data1 = data.drop('Date', axis = 1)
+
+# 데이터 분할 (훈련데이터 9 : 테스트 데이터 1)
+n_train = int(0.9*data1.shape[0])
+train = data1.iloc[:n_train]
+test = data1.iloc[n_train:]
+
+train_input = train.drop('SPY_Log_Returns_Weekly', axis = 1)
+train_target = train['SPY_Log_Returns_Weekly']
+test_input = test.drop('SPY_Log_Returns_Weekly', axis = 1)
+test_target = test['SPY_Log_Returns_Weekly']
+
+# 시각화를 위한 날짜 데이터 처리
+date_info = pd.to_datetime(data['Date'])
+train_date = date_info.iloc[:n_train]
+test_date = date_info.iloc[n_train:]
+
+bayesian_params = {
+    'max_depth':(3, 15), #트리 최대 깊이
+    'num_leaves':(1, 30), #트리 하나에 최대 잎 개수
+    'learning_rate': (0.001, 0.1), #하나의 잎에 최소 데이터 개수 (오버피팅 대응)
+    'feature_fraction' : (0.1, 1.0),
+    'bagging_fraction' : (0.1, 1.0),
+    'bagging_freq' : (1, 10)
+}
+
+def lgb_eval(max_depth, num_leaves, learning_rate, feature_fraction, bagging_fraction, bagging_freq):
+  params = {
+      "n_estimators" : 500, 
+      "learning_rate": learning_rate,
+      'max_depth': int(round(max_depth)),
+      'num_leaves': int(round(num_leaves)),
+      'feature fraction' : round(feature_fraction),
+      'bagging fraction' : round(bagging_fraction),
+      'bagging freq' : int(round(bagging_freq))
+  }
+  lgb_model = lgb.LGBMRegressor(**params)
+  lgb_model.fit(train_input, train_target, eval_set=[(train_input, train_target), (test_input, test_target)], eval_metric= 'mse')
+  valid_proba = lgb_model.predict(test_input)
+  mse = mean_squared_error(test_target, valid_proba)
+
+  return mse
+
+lgbBO = BayesianOptimization(f= lgb_eval, pbounds=bayesian_params, random_state = 0)
+lgbBO.maximize(init_points = 5, n_iter = 25)
+
+lgbBO.res
+
+target_list = []
+for result in lgbBO.res:
+    target = result['target']
+    target_list.append(target)
+
+# 가장 큰 target값을 가지는 index값을 기준으로 res에서 해당 parameter 추출. 
+max_dict = lgbBO.res[np.argmax(np.array(target_list))]
+opt_lr = max_dict['params']['learning_rate']
+opt_md = max_dict['params']['max_depth']
+opt_nl = max_dict['params']['num_leaves']
+opt_ff = max_dict['params']['feature_fraction']
+opt_bf = max_dict['params']['bagging_fraction']
+opt_bfreq = max_dict['params']['bagging_freq']
+
+print(opt_lr, opt_md, opt_nl, opt_ff, opt_bf, opt_bfreq)
+
+# 하이퍼 파라미터 설정
+
+params = {
+    'max_depth' : int(opt_md), # 각 트리의 최대 깊이 설정
+    'boosting_type': 'gbdt',  # 트리 부스팅 타입 설정
+    'objective': 'regression',    # 목적 함수 설정
+    'metric': 'mse',  # 평가 지표 설정
+    'num_leaves': int(opt_nl),  # 각 트리의 최대 잎 노드 수
+    'learning_rate': opt_lr,     # 학습률(학습 정도 조절)
+    'feature_fraction': opt_ff,  # 각 트리마다 선택할 특성의 비율
+    'bagging_fraction': opt_bf,  # 각 트리마다 선택할 데이터의 비율
+    'bagging_freq': int(opt_bfreq),        # 데이터 샘플링 빈도
+    'verbose': 1              # 학습 중 메시지 출력 여부 설정
+}
+
+# 데이터를 DataFrame -> Dataset으로 변환
+train_data = lgb.Dataset(train_input, label=train_target)
+test_data = lgb.Dataset(test_input, label=test_target)
+
+# LightGBM 모델 학습
+# train(파라미터 설정, 학습 데이터, 학습 반복 횟수, 검증 데이터셋 설정)
+model = lgb.train(params, train_data, num_boost_round=100, valid_sets=test_data)
+
+# [LightGBM] [Warning] No further splits with positive gain, best gain: -inf 오류 해결을 위한 leaf 개수 탐색 함수
+def leaf_count(model):
+    tree_infos = model.dump_model()["tree_info"]
+
+    # 각 트리의 잎 개수 저장 리스트
+    leaves_list = []
+    # 각 트리의 잎 개수 추출, 저장
+    for tree in tree_infos:
+        leaves_list.append(tree["num_leaves"])
+
+    return min(leaves_list)
+
+print('minimum of leaf:',leaf_count(model))
+
+# target_pred = test_input으로 학습하여 예측한 값
+# num_iteration = 트리의 반복 횟수 , model.best_iteration = 최적의 반복 횟수로 설정
+target_pred = model.predict(test_input, num_iteration=model.best_iteration)
+
+# 모델 성능 평가
+# mse = 평균 제곱 오차, 실제 값과 예측 값 사이의 차이를 제곱한 값의 평균
+# 값이 작을 수록 오차가 작음
+mse = mean_squared_error(test_target, target_pred)
+print(f'MSE: {mse}')
+
+
+# r2점수 = 예측된 값이 실제 값과 얼마나 잘 일치하는지 설명하는 지표, 1에 가까울 수록 좋은 모델
+# 1 - (sum(관측값 - 예측값)^2 / sum(관측값 - 타겟 데이터 평균값)^2)
+# 1 - (sum(test_target - target_pred)^2 / sum(test_target - np.mean(test_target))^2)
+from sklearn.metrics import r2_score
+r2 = r2_score(test_target, target_pred)
+print('R squared score:',r2)
+
+
+# 데이터 시각화
+import matplotlib.pyplot as plt
+import matplotlib.dates as md
+
+# matplot 한글 출력 코드
+plt.rcParams['font.family'] ='Malgun Gothic'
+plt.rcParams['axes.unicode_minus'] =False
+
+plt.plot(test_date, test_target, color='blue', label='실제 로그수익률')
+plt.plot(test_date, target_pred, color='red', label='예측 로그수익률')
+plt.xlabel('날짜')
+plt.ylabel('로그 수익률')
+plt.title('실제 vs 예측 로그 수익률 비교')
+plt.legend()
+
+# x축 월 단위 출력
+ax = plt.gca()
+ax.xaxis.set_major_locator(md.MonthLocator())
+plt.show()
