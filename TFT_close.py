@@ -29,20 +29,22 @@ from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimi
 
 
 # 데이터 생성
-data = pd.read_excel("C:/Users/daily/Desktop/train.xlsx")
+data = pd.read_excel("C:/Users/daily/Desktop/data2_normalized.xlsx")
 data['Date'] = pd.to_datetime(data['Date'])
 
 data["time_idx"] = [i for i in range(1, len(data['Date'])+1)]
 
 # year로 범주형 변수 생성
 data['year'] = data.Date.dt.year.astype(str).astype('category')
+# 월 별로 분석 시 data['month'] = data.Date.dt.month.astype(str).astype('category') 로 수정
 
-data['Open'] = data.Open.astype(float)
-data['High'] = data.High.astype(float)
-data['Low'] = data.Low.astype(float)
-data['Volume'] = data.Volume.astype(float)
-data['Close'] = data.Close.astype(float)
+# data['Open'] = data.Open.astype(float)
+# data['High'] = data.High.astype(float)
+# data['Low'] = data.Low.astype(float)
+# data['Volume'] = data.Volume.astype(float)
+# data['Close'] = data.Close.astype(float)
 
+# 월 별로 분석 시 max_prediction_length와 max_encoder_length의 길이 조정
 max_prediction_length = 30 # 예측 일수
 max_encoder_length = 100 # 학습하는 과거 데이터 일수
 training_cutoff = data["time_idx"].max() - max_prediction_length # time_idx의 최댓값 - 예측 일수 -> 
@@ -55,16 +57,16 @@ training = TimeSeriesDataSet(
     data[lambda x: x.time_idx <= training_cutoff], # data 중 time_idx가 training_cutoff 이하인 데이터만 추출
     allow_missing_timesteps=True, # 누락된 시계열 구간 허용
     time_idx="time_idx", # 시간 인덱스 열 설정
-    target="Close", # 타겟 열 설정
-    group_ids=['year'], # 그룹화할 데이터 설정(범주형 변수일 것)
+    target="SNP500", # 타겟 열 설정
+    group_ids=['year'], # 그룹화할 데이터 설정(범주형 변수일 것) / 월 별 분석 시 'month'로 변경
     min_encoder_length=max_encoder_length // 2,  # 인코더의 최소 길이 설정
     max_encoder_length=max_encoder_length, # 인코더 최대 길이 설정
     min_prediction_length=1, # 모델이 예측할 기간 -> 모델이 한 번의 예측에서 최소한으로 예측할 시간 간격
     max_prediction_length=max_prediction_length,  # 모델이 한 번의 예측에서 최대로 예측할 수 있는 시간 간격
-    time_varying_known_categoricals=['year'], # 값을 알고 있는 범주형 동적변수
-    time_varying_known_reals=['time_idx', 'Open', 'High', 'Low', 'Volume'], # 값을 알고 있는 연속형 동적 변수 지정
+    time_varying_known_categoricals=['year'], # 값을 알고 있는 범주형 동적변수 / 월 별 분석 시 'month'로 변경
+    time_varying_known_reals=['time_idx'], # 값을 알고 있는 연속형 동적 변수 지정
     time_varying_unknown_categoricals=[], # 미지 범주형 동적변수 지정
-    time_varying_unknown_reals=['Close'], # 미지 연속형 동적변수 지정
+    time_varying_unknown_reals=['Unemployment_Rate', 'Interest_Rate', 'Term_Spread', 'TIPS', 'High_Yield_Spread'], # 미지 연속형 동적변수 지정
     target_normalizer=GroupNormalizer( # groups = []로 지정한 범주형 변수에 따라 그룹을 나눠 정규화 수행
         groups=[], transformation='relu'   # transformation = 활성화 함수 지정 : 활성화 함수로 데이터 처리 후 정규화
     ),
@@ -197,13 +199,25 @@ print('MAPE: {0}%'.format(pred_MAPE*100))
 # 시각화를 위한 시간 지표 할당
 index_value = predictions.index['time_idx']
 
-# 전체 데이터와 예측 데이터를 같이 출력 (다른 데이터를 사용할 경우 슬라이싱 범위 조정 필요)
+# 전체 데이터와 연도별(월별) 예측 데이터를 같이 출력 (다른 데이터를 사용할 경우 슬라이싱 범위 조정 필요)
 plt.title('actual vs predict')
 plt.plot(data['Close'], label = 'actual', color = 'red', lw = 0.5, linestyle = '--')
-plt.plot([i for i in range(index_value[0], index_value[0]+max_prediction_length)], predictions.output[0], label = 'predict1', color = 'blue')
-plt.plot([i for i in range(index_value[1], index_value[1]+max_prediction_length)], predictions.output[1], label = 'predict2', color = 'blue')
-plt.plot([i for i in range(index_value[2], index_value[2]+max_prediction_length)], predictions.output[2], label = 'predict3', color = 'blue')
-plt.plot([i for i in range(index_value[3], index_value[3]+max_prediction_length)], predictions.output[3], label = 'predict4', color = 'blue')
+plt.plot([i for i in range(index_value[0], index_value[0]+max_prediction_length)], predictions.output[0], color = 'blue')
+plt.plot([i for i in range(index_value[1], index_value[1]+max_prediction_length)], predictions.output[1], color = 'blue')
+plt.plot([i for i in range(index_value[2], index_value[2]+max_prediction_length)], predictions.output[2], color = 'blue')
+plt.plot([i for i in range(index_value[3], index_value[3]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[4], index_value[4]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[5], index_value[5]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[6], index_value[6]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[7], index_value[7]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[8], index_value[8]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[9], index_value[9]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[10], index_value[10]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[11], index_value[11]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[12], index_value[12]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[13], index_value[13]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[14], index_value[14]+max_prediction_length)], predictions.output[3], color = 'blue')
+plt.plot([i for i in range(index_value[15], index_value[15]+max_prediction_length)], predictions.output[3], color = 'blue')
 plt.legend()
 plt.show()
 
@@ -220,5 +234,5 @@ for i in range(len(index_value)):
 # 대각선에 값이 많이 모여있을 수록 좋은 모델
 plt.figure(figsize=(6, 6))
 plt.scatter(predictions.output, predictions.y[0])
-plt.plot([i for i in range(0, 381)], [i for i in range(0, 381)], color = 'red', lw = 0.5)
+# plt.plot([i for i in range(0, 381)], [i for i in range(0, 381)], color = 'red', lw = 0.5)
 plt.show()
