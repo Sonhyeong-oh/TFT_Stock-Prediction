@@ -1,4 +1,4 @@
-# LSTM을 이용한 SNP500 지수 예측 및 시각화
+# LSTM을 이용한 시가 예측 및 시각화
 
 import numpy as np
 import pandas as pd
@@ -10,10 +10,10 @@ plt.rcParams['font.family'] ='Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] =False
 
 # csv 파일 불러오기
-stock_data = pd.read_excel("C:/Users/daily/Desktop/data2_normalized.xlsx")
+stock_data = pd.read_csv("C:/Users/daily/Desktop/train.csv")
 
-# SNP500 지수를 데이터 시각화 시 사용하기 위해 저장
-original_open = stock_data['SNP500'].values
+# Open 값을 데이터 시각화 시 사용하기 위해 저장
+original_open = stock_data['Open'].values
 
 # 날짜 데이터 문자열(type : str)을 datetime 객체(type: datetime64[ns])로 변환
 # print(type(stock_data['Date'].iloc[0])) = <class 'str'>
@@ -44,8 +44,8 @@ test_dates = dates[n_train:]
 
 # LSTM을 위한 데이터 재구성
 pred_days = 1  # 예측 일수
-seq_len = 30   # 시퀀스 길이 = 미래 예측을 위한 과거 일수
-input_dim = 5  # 입력 (열) 차원 = ['SNP500', 'Unemployment_Rate', 'Interest_Rate', 'Term_Spread', 'TIPS', 'High_Yield_Spread]
+seq_len = 14   # 시퀀스 길이 = 미래 예측을 위한 과거 일수
+input_dim = 5  # 입력 (열) 차원 = ['Open', 'High', 'Low', 'Close', 'Volume']
 
 # X = 학습 데이터 시퀀스 / Y = 예측할 실제 값
 trainX = []
@@ -139,6 +139,7 @@ mean_values_pred[:, 0] = np.squeeze(prediction)
 
 # 표준화한 데이터를 원데이터로 변환
 y_pred = scaler.inverse_transform(mean_values_pred)[:,0]
+print(y_pred.shape)
 
 # testY 데이터 시각화를 위한 평균 데이터셋 생성
 mean_values_testY = np.repeat(scaler.mean_[np.newaxis, :], testY.shape[0], axis=0)
@@ -148,6 +149,7 @@ mean_values_testY[:, 0] = np.squeeze(testY)
 
 # 표준화 데이터를 원데이터로 변환
 testY_original = scaler.inverse_transform(mean_values_testY)[:,0]
+print(testY_original.shape)
 
 # plotting
 plt.figure(figsize=(14, 5))
@@ -156,8 +158,8 @@ plt.figure(figsize=(14, 5))
 plt.plot(dates, original_open, color='green', label='학습 시가')
 
 # plot actual vs predicted
-plt.plot(test_dates[-len(testY_original)-1:-1], testY_original, color='blue', label='실제 시가')
-plt.plot(test_dates[-len(y_pred)-1:-1], y_pred, color='red', linestyle='--', label='예측 시가')
+plt.plot(test_dates[seq_len:], testY_original, color='blue', label='실제 시가')
+plt.plot(test_dates[seq_len:], y_pred, color='red', linestyle='--', label='예측 시가')
 plt.xlabel('날짜')
 plt.ylabel('시가')
 plt.title('학습, 실제, 예측 시가')
@@ -174,11 +176,13 @@ plt.figure(figsize=(14, 5))
 # Adjust the start index for the testY_original and y_pred arrays
 adjusted_start = zoom_start - seq_len
 
-plt.plot(test_dates[-len(testY_original)-1:-1], testY_original,
+plt.plot(test_dates[zoom_start:zoom_end],
+         testY_original[adjusted_start:zoom_end - zoom_start + adjusted_start],
          color='blue',
          label='실제 시가')
 
-plt.plot(test_dates[-len(y_pred)-1:-1], y_pred,
+plt.plot(test_dates[zoom_start:zoom_end],
+         y_pred[adjusted_start:zoom_end - zoom_start + adjusted_start ],
          color='red',
          linestyle='--',
          label='예측 시가')
