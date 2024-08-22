@@ -190,6 +190,16 @@ plt.title('Zoomed In 실제 vs 예측 시가')
 plt.legend()
 plt.show()
 
-print('정확도 : %.4f' % (model.evaluate(testX, testY)[1]))
+from sklearn.metrics import mean_squared_error
+mse = mean_squared_error(testY_original, y_pred)
+print(f'MSE: {mse}')
+
+# r2점수 = 예측된 값이 실제 값과 얼마나 잘 일치하는지 설명하는 지표, 1에 가까울 수록 좋은 모델
+# 1 - (sum(관측값 - 예측값)^2 / sum(관측값 - 타겟 데이터 평균값)^2)
+# 1 - (sum(test_target - target_pred)^2 / sum(test_target - np.mean(test_target))^2)
+from sklearn.metrics import r2_score
+r2 = r2_score(testY_original, y_pred)
+print('R squared score:',r2)
+
 # 코드 출처 : https://www.deepcampus.kr/266
 # 데이터 출처 : https://www.kaggle.com/competitions/netflix-stock-prediction/data?select=sample_submission.csv
