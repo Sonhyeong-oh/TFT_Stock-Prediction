@@ -110,7 +110,7 @@ model.compile(optimizer=optimizer, loss='mse', metrics = [r2_metric])
 #     print("No weights found, training model from scratch")
 
 # 모델 파라미터를 저장하기 위해 변수 지정
-history = model.fit(trainX, trainY, epochs=30, batch_size=32,
+history = model.fit(trainX, trainY, epochs=100, batch_size=32,
                 validation_split=0.1, verbose=1)
 # 모델 파라미터 저장
 model.save_weights('lstm_weights.weights.h5')
@@ -125,7 +125,6 @@ plt.show()
 
 # 예측
 prediction = model.predict(testX)
-print(prediction.shape, testY.shape)
 
 # prediction 데이터의 시각화를 위한 평균 데이터셋 생성
 # scaler.mean_ : prediction 데이터의 평균값(열 기준)으로 1차원 데이터 생성
@@ -139,7 +138,6 @@ mean_values_pred[:, 0] = np.squeeze(prediction)
 
 # 표준화한 데이터를 원데이터로 변환
 y_pred = scaler.inverse_transform(mean_values_pred)[:,0]
-print(y_pred.shape)
 
 # testY 데이터 시각화를 위한 평균 데이터셋 생성
 mean_values_testY = np.repeat(scaler.mean_[np.newaxis, :], testY.shape[0], axis=0)
@@ -149,7 +147,6 @@ mean_values_testY[:, 0] = np.squeeze(testY)
 
 # 표준화 데이터를 원데이터로 변환
 testY_original = scaler.inverse_transform(mean_values_testY)[:,0]
-print(testY_original.shape)
 
 # plotting
 plt.figure(figsize=(14, 5))
@@ -193,6 +190,6 @@ plt.title('Zoomed In 실제 vs 예측 시가')
 plt.legend()
 plt.show()
 
-
+print('정확도 : %.4f' % (model.evaluate(testX, testY)[1]))
 # 코드 출처 : https://www.deepcampus.kr/266
 # 데이터 출처 : https://www.kaggle.com/competitions/netflix-stock-prediction/data?select=sample_submission.csv
