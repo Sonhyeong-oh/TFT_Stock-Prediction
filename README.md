@@ -13,4 +13,5 @@ https://www.manuscriptlink.com/society/kips/conference/ack2024/file/downloadSoCo
 
 # Cite
 This code is implemented with reference to PyTorch Forecasting : TemporalFusionTransformer.
+
 https://pytorch-forecasting.readthedocs.io/en/stable/api/pytorch_forecasting.models.temporal_fusion_transformer._tft.TemporalFusionTransformer.html
