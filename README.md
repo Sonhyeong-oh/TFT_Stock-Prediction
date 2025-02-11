@@ -1,4 +1,5 @@
 <img src="https://img.shields.io/badge/python-%233776AB.svg?&style=for-the-badge&logo=python&logoColor=white" />
+
 # Predicting Stock Price Index using the Wavelet Transform and Temporal Fusion Transformer Model
 
 # Overview
