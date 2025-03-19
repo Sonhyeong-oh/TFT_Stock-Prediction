@@ -3,7 +3,7 @@
 # Predicting Stock Price Index using the Wavelet Transform and Temporal Fusion Transformer Model
 
 # Overview
-1. Transformer Model for Paper Submission for the ACK2024 Conference
+1. Transformer Model for Paper Submission to the ACK2024 Conference
 2. For reduce noise of Stock price data, preprocessing the data with Wavelet Transform.
 3. Transformer models were used to improve errors that occur when predicting long-term time series data.
 4. Transformer models extract the points in time series that are relevant for prediction through attention, enabling more accurate forecasts.
