@@ -4,8 +4,8 @@
 
 - Model Workflow
   
-  <img width="192" height="304" alt="image" src="https://github.com/user-attachments/assets/0f389be6-d251-4f87-83e5-4f2619f68b64" />
-  
+  <img width="175" height="266" alt="image" src="https://github.com/user-attachments/assets/a9bc5bc9-96a1-451d-8121-80c1bdba260b" />
+
 - Test Result
   
   <img width="390" height="283" alt="image" src="https://github.com/user-attachments/assets/0422a2ae-813e-4126-ad07-909f2f8dea63" />
