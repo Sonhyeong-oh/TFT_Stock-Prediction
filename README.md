@@ -8,6 +8,12 @@
 3. Transformer models were used to improve errors that occur when predicting long-term time series data.
 4. Transformer models extract the points in time series that are relevant for prediction through attention, enabling more accurate forecasts.
 
+# Code Description
+
+Model - Data Preprocessing Code & Finanacial Reinforcement Learning Model
+
+Param - Parameter Tuning based on Sharpe Ratio for FinRL Model
+
 # Paper Link
 https://www.manuscriptlink.com/society/kips/conference/ack2024/file/downloadSoConfManuscript/abs/KIPS_C2024B0077
 
