@@ -10,9 +10,9 @@
 
 # Code Description
 
-Models - Data Preprocessing Code & Finanacial Reinforcement Learning Model
+Models - LSTM, Temporal Fusion Transformer Model for Predicting Stock Price
 
-param_tuning - Parameter Tuning based on Sharpe Ratio for FinRL Model
+param_tuning - Parameter Tuning for LSTM and TFT
 
 # Paper Link
 https://www.manuscriptlink.com/society/kips/conference/ack2024/file/downloadSoConfManuscript/abs/KIPS_C2024B0077
