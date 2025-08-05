@@ -3,9 +3,11 @@
 # Predicting Stock Price Index using the Wavelet Transform and Temporal Fusion Transformer Model
 
 - Model Workflow
+  
   <img width="192" height="304" alt="image" src="https://github.com/user-attachments/assets/0f389be6-d251-4f87-83e5-4f2619f68b64" />
   
 - Test Result
+  
   <img width="390" height="283" alt="image" src="https://github.com/user-attachments/assets/0422a2ae-813e-4126-ad07-909f2f8dea63" />
 
 # Overview
