@@ -10,9 +10,9 @@
 
 # Code Description
 
-Model - Data Preprocessing Code & Finanacial Reinforcement Learning Model
+Models - Data Preprocessing Code & Finanacial Reinforcement Learning Model
 
-Param - Parameter Tuning based on Sharpe Ratio for FinRL Model
+param_tuning - Parameter Tuning based on Sharpe Ratio for FinRL Model
 
 # Paper Link
 https://www.manuscriptlink.com/society/kips/conference/ack2024/file/downloadSoConfManuscript/abs/KIPS_C2024B0077
