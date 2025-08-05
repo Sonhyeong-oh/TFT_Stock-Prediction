@@ -10,9 +10,9 @@
 
 # Code Description
 
-Models - LSTM, Temporal Fusion Transformer Model for Predicting Stock Price
+Models - LSTM, Temporal Fusion Transformer and LightGBM Model for Predicting Stock Price
 
-param_tuning - Parameter Tuning for LSTM and TFT
+param_tuning - Parameter Tuning for LightGBM
 
 # Paper Link
 https://www.manuscriptlink.com/society/kips/conference/ack2024/file/downloadSoConfManuscript/abs/KIPS_C2024B0077
