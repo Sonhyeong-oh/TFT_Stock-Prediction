@@ -25,7 +25,7 @@ param_tuning - Parameter Tuning for LightGBM
 # Paper Link
 https://www.manuscriptlink.com/society/kips/conference/ack2024/file/downloadSoConfManuscript/abs/KIPS_C2024B0077
 
-# Cite
+# Reference
 This code has been implemented based on PyTorch Forecasting's TemporalFusionTransformer.
 
 https://pytorch-forecasting.readthedocs.io/en/stable/api/pytorch_forecasting.models.temporal_fusion_transformer._tft.TemporalFusionTransformer.html
